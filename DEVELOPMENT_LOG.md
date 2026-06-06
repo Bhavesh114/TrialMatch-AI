@@ -11,3 +11,9 @@
 **Status:** Active development
 **Focus area:** Prompt engineering
 **Progress note:** Cleaned up the criteria extraction prompt to handle multi-part inclusion criteria more reliably — specifically cases where a single criterion contains nested sub-conditions joined by "and/or". Reviewed outputs on a batch of 15 oncology trials and confirmed the updated prompt reduces mis-parsed criteria by roughly 30%.
+
+## [2026-06-06 14:00] — Afternoon
+
+**Status:** Active development
+**Focus area:** API integration
+**Progress note:** Integrated ClinicalTrials.gov API v2 NCT ID lookup to resolve trial identifiers passed in from coordinator uploads. Added retry logic with exponential backoff to handle intermittent 503 responses, and updated the data pipeline to cache enriched trial metadata locally to reduce redundant API calls during batch screening runs.
