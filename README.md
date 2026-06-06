@@ -23,10 +23,11 @@ TrialMatch AI streamlines clinical trial patient recruitment by:
 
 ### Key Features
 
-- ✅ **PDF Protocol Parsing** - Handles digital and scanned PDFs with OCR fallback
-- ✅ **AI-Powered Extraction** - Claude Sonnet 3.5 extracts structured criteria with confidence scoring
+- ✅ **NCT ID Integration** - Primary flow: paste an NCT ID → criteria pulled directly from ClinicalTrials.gov API v2 (no PDF needed)
+- ✅ **PDF Protocol Parsing** - Fallback for sponsor protocols not registered on CT.gov; handles digital and scanned PDFs with OCR
+- ✅ **AI-Powered Extraction** - Claude Sonnet 4 extracts structured criteria with confidence scoring
 - ✅ **Detailed Assessment** - Per-criterion eligibility with evidence cited and missing data flagged
-- ✅ **Editable Criteria** - Clinicians review and modify extracted criteria
+- ✅ **Editable Criteria** - Clinicians review and modify extracted criteria before screening
 - ✅ **De-Identification Focus** - Built to process de-identified data only
 - ✅ **PDF Reports** - Professional screening reports for medical records
 - ✅ **No Patient Persistence** - Session data cleared on browser close (privacy-first)
@@ -69,6 +70,29 @@ TrialMatch AI streamlines clinical trial patient recruitment by:
 │  - Pydantic (data validation)                           │
 └──────────────────────────────────────────────────────────┘
 ```
+
+---
+
+## ClinicalTrials.gov API v2 Integration
+
+> **Architecture note (2026-06):** CT.gov's CSV export contains only metadata (30 columns) — it does **not** include eligibility criteria. The JSON API v2 is the correct source and returns the full criteria text pre-split into inclusion/exclusion sections.
+
+Primary input flow:
+
+```
+NCT ID  →  GET https://clinicaltrials.gov/api/v2/studies/{nct_id}
+        →  .protocolSection.eligibilityModule.eligibilityCriteria  (free text)
+        →  .protocolSection.eligibilityModule.minimumAge / maximumAge / sex
+        →  Claude extracts structured {criterion_id, type, description} objects
+        →  Patient screening
+```
+
+PDF upload is preserved as a fallback for:
+- Sponsor protocols with additional operational criteria not yet registered on CT.gov
+- Amended protocols where CT.gov has not been updated
+- Internal/proprietary trial documents
+
+No API key is required for the CT.gov public API.
 
 ---
 
