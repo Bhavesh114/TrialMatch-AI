@@ -17,3 +17,9 @@
 **Status:** Active development
 **Focus area:** API integration
 **Progress note:** Integrated ClinicalTrials.gov API v2 NCT ID lookup to resolve trial identifiers passed in from coordinator uploads. Added retry logic with exponential backoff to handle intermittent 503 responses, and updated the data pipeline to cache enriched trial metadata locally to reduce redundant API calls during batch screening runs.
+
+## [2026-06-07 14:00] — Afternoon
+
+**Status:** Active development
+**Focus area:** Performance
+**Progress note:** Profiled the two-stage LLM pipeline under concurrent screening requests and identified a bottleneck in the criteria extraction stage where large protocol PDFs were being re-parsed on every request. Introduced an in-memory cache keyed on protocol hash, cutting median latency by ~40% for repeat submissions of the same trial document during a coordinator's session.
