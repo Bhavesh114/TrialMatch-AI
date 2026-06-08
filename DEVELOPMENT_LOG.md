@@ -23,3 +23,9 @@
 **Status:** Active development
 **Focus area:** Performance
 **Progress note:** Profiled the two-stage LLM pipeline under concurrent screening requests and identified a bottleneck in the criteria extraction stage where large protocol PDFs were being re-parsed on every request. Introduced an in-memory cache keyed on protocol hash, cutting median latency by ~40% for repeat submissions of the same trial document during a coordinator's session.
+
+## [2026-06-07 22:00] — Evening
+
+**Status:** Active development
+**Focus area:** Compliance
+**Progress note:** Reviewed the de-identification validation pipeline to ensure all patient-identifiable fields (name, DOB, MRN) are stripped before structured patient data reaches the LLM. Cross-checked the scrubbing logic against HIPAA Safe Harbor identifiers and documented the approach in compliance notes; added an assertion in the test suite to verify no PII tokens survive the sanitization step.
