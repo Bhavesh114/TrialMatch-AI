@@ -29,3 +29,9 @@
 **Status:** Active development
 **Focus area:** Compliance
 **Progress note:** Reviewed the de-identification validation pipeline to ensure all patient-identifiable fields (name, DOB, MRN) are stripped before structured patient data reaches the LLM. Cross-checked the scrubbing logic against HIPAA Safe Harbor identifiers and documented the approach in compliance notes; added an assertion in the test suite to verify no PII tokens survive the sanitization step.
+
+## [2026-06-08 14:00] — Afternoon
+
+**Status:** Active development
+**Focus area:** Testing
+**Progress note:** Expanded integration test coverage for the screening endpoint to handle patients with incomplete lab data — specifically cases where key values like eGFR or HbA1c are missing or out-of-range. Added parameterized test fixtures covering six edge-case patient profiles and verified that the screener returns a "data insufficient" flag rather than a false eligibility determination when critical labs are absent.
