@@ -47,3 +47,9 @@
 **Status:** Active development
 **Focus area:** API integration
 **Progress note:** Integrated the ClinicalTrials.gov API v2 NCT ID lookup to resolve trial references from coordinator-submitted protocol documents. The endpoint now validates that the returned study status is "RECRUITING" before proceeding with eligibility screening, surfacing a clear error message when a trial has closed, rather than silently scoring against stale criteria.
+
+## [2026-06-09 22:00] — Evening
+
+**Status:** Active development
+**Focus area:** Frontend UX
+**Progress note:** Reworked the coordinator-facing eligibility report layout to surface the most critical disqualifying criteria at the top of the results panel, reducing the time coordinators spend scrolling to identify hard exclusions. Added colour-coded confidence indicators (green/amber/red) alongside each criterion match, making it easier to distinguish high-confidence automatic decisions from borderline cases that warrant manual review.
