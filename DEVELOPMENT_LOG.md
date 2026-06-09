@@ -35,3 +35,9 @@
 **Status:** Active development
 **Focus area:** Testing
 **Progress note:** Expanded integration test coverage for the screening endpoint to handle patients with incomplete lab data — specifically cases where key values like eGFR or HbA1c are missing or out-of-range. Added parameterized test fixtures covering six edge-case patient profiles and verified that the screener returns a "data insufficient" flag rather than a false eligibility determination when critical labs are absent.
+
+## [2026-06-08 22:00] — Evening
+
+**Status:** Active development
+**Focus area:** Prompt engineering
+**Progress note:** Cleaned up the criteria extraction prompt to handle multi-part inclusion criteria more reliably — specifically trials where a single criterion contains nested sub-conditions joined by "and/or" conjunctions. Rewrote the extraction template to emit each sub-condition as a discrete structured rule, reducing ambiguous matches in downstream eligibility scoring.
