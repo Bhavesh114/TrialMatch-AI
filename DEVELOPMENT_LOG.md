@@ -41,3 +41,9 @@
 **Status:** Active development
 **Focus area:** Prompt engineering
 **Progress note:** Cleaned up the criteria extraction prompt to handle multi-part inclusion criteria more reliably — specifically trials where a single criterion contains nested sub-conditions joined by "and/or" conjunctions. Rewrote the extraction template to emit each sub-condition as a discrete structured rule, reducing ambiguous matches in downstream eligibility scoring.
+
+## [2026-06-09 14:00] — Afternoon
+
+**Status:** Active development
+**Focus area:** API integration
+**Progress note:** Integrated the ClinicalTrials.gov API v2 NCT ID lookup to resolve trial references from coordinator-submitted protocol documents. The endpoint now validates that the returned study status is "RECRUITING" before proceeding with eligibility screening, surfacing a clear error message when a trial has closed, rather than silently scoring against stale criteria.
