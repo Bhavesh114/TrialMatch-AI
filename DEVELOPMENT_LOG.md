@@ -59,3 +59,9 @@
 **Status:** Active development
 **Focus area:** Compliance
 **Progress note:** Reviewed the de-identification pipeline end-to-end against HIPAA Safe Harbor requirements, confirming that all 18 PHI identifiers are stripped before patient records are passed to the screening prompt. Updated the compliance notes to document the exact regex patterns used for date shifting and geographic generalisation, so the approach is auditable without needing to re-read the source code.
+
+## [2026-06-10 14:00] — Afternoon
+
+**Status:** Active development
+**Focus area:** Testing
+**Progress note:** Added integration tests for the screening endpoint covering edge cases where patients have incomplete lab data — specifically missing eGFR, HbA1c, or platelet counts that trials commonly require. Tests assert that the screener returns a structured "data-insufficient" verdict rather than an incorrect eligibility decision, and that the missing fields are surfaced clearly in the coordinator report.
