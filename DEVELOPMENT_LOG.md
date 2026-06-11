@@ -65,3 +65,9 @@
 **Status:** Active development
 **Focus area:** Testing
 **Progress note:** Added integration tests for the screening endpoint covering edge cases where patients have incomplete lab data — specifically missing eGFR, HbA1c, or platelet counts that trials commonly require. Tests assert that the screener returns a structured "data-insufficient" verdict rather than an incorrect eligibility decision, and that the missing fields are surfaced clearly in the coordinator report.
+
+## [2026-06-10 22:00] — Evening
+
+**Status:** Active development
+**Focus area:** Prompt engineering
+**Progress note:** Refined the criteria extraction prompt to handle multi-part inclusion criteria more reliably — specifically cases where a single criterion contains nested numeric thresholds joined by "and/or" (e.g., "eGFR ≥ 45 and < 90 with stable kidney function for ≥ 3 months"). The updated prompt now splits compound criteria into discrete sub-conditions before scoring, reducing false positives on borderline patients who only partially meet composite requirements.
