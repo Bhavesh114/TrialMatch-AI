@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>TrialMatch AI</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+<script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+  * { font-family: 'Inter', sans-serif; box-sizing: border-box; }
+  body { margin:0; background:#f8fafc; }
+  .hero-gradient { background: linear-gradient(135deg, #1e1b4b 0%, #312e81 40%, #4c1d95 100%); }
+  .upload-zone { border: 2px dashed #818cf8; background: linear-gradient(135deg, #eef2ff, #f5f3ff); transition: all .2s; }
+  .upload-zone:hover { border-color: #6366f1; background: linear-gradient(135deg, #e0e7ff, #ede9fe); }
+  .spin { animation: spin 1s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .fade-in { animation: fadeIn .3s ease; }
+  @keyframes fadeIn { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
+  ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #f1f5f9; } ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const { useState, useCallback, useRef } = React;
+
+// ─── Icons ─────────────────────────────────────────────────────────────────
+const Icon = ({ d, size=16, className="" }) => (
+  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className}>
+    {Array.isArray(d) ? d.map((p,i)=><path key={i} d={p}/>) : <path d={d}/>}
+  </svg>
+);
+const CheckIcon = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>;
+const SpinIcon = ({size=16}) => <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="spin"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>;
+
+// ─── NavBar ─────────────────────────────────────────────────────────────────
+const NavBar = ({ step }) => {
+  const steps = ["Upload Protocol","Review Criteria","Screen Patient","Export Report"];
+  return (
+    <nav style={{background:"white",borderBottom:"1px solid #e2e8f0",padding:"0 40px",height:60,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:100}}>
+      <div style={{display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:32,height:32,background:"linear-gradient(135deg,#6366f1,#8b5cf6)",borderRadius:8,display:"flex",alignItems:"center",justifyContent:"center"}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.5"><path d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"/></svg>
+        </div>
+        <span style={{color:"#1e293b",fontWeight:700,fontSize:17}}>TrialMatch AI</span>
+        <span style={{background:"#312e81",color:"#a5b4fc",fontSize:10,fontWeight:700,padding:"2px 7px",borderRadius:4,marginLeft:2}}>BETA</span>
+      </div>
+      <div style={{display:"flex",alignItems:"center",gap:0}}>
+        {steps.map((s,i) => (
+          <React.Fragment key={i}>
+            <div style={{display:"flex",alignItems:"center",gap:7}}>
+              <div style={{width:26,height:26,borderRadius:"50%",background: i < step ? "#6366f1" : i === step ? "#6366f1" : "#e2e8f0",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                {i < step
+                  ? <CheckIcon size={13}/>
+                  : <span style={{color: i===step?"white":"#94a3b8",fontSize:11,fontWeight:700}}>{i+1}</span>
+                }
+              </div>
+              <span style={{fontSize:13,fontWeight: i===step?700:500,color: i<=step?"#6366f1":"#94a3b8",whiteSpace:"nowrap"}}>{s}</span>
+            </div>
+            {i < steps.length-1 && <div style={{width:36,height:2,background: i<step?"#6366f1":"#e2e8f0",margin:"0 8px"}}/>}
+          </React.Fragment>
+        ))}
+      </div>
+      <div style={{width:140}}/>
+    </nav>
+  );
+};
+
+// ─── Step 1: Upload ──────────────────────────────────────────────────────────
+const DEMO_PATIENT = `Patient: De-identified
+Age: 52, Female
+Diagnosis: Type 2 Diabetes Mellitus (diagnosed 2019)
+HbA1c: 8.2% (most recent, 2 weeks ago)
+BMI: 31.4
+Current medications: Metformin 1000mg BID, Lisinopril 10mg daily
+Comorbidities: Hypertension (controlled), Mild osteoarthritis
+Lab values: eGFR 78 mL/min, ALT 28 U/L, Creatinine 1.1 mg/dL
+Surgical history: Appendectomy (2005)
+Allergies: Penicillin
+No history of: cardiovascular events, cancer, organ transplant
+Currently: Not pregnant, no plans for pregnancy`;
+
+function UploadStep({ onComplete }) {
+  const [dragging, setDragging] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [file, setFile] = useState(null);
+  const inputRef = useRef();
+
+  const handleFile = async (f) => {
+    if (!f) return;
+    if (!f.name.toLowerCase().endsWith(".pdf")) { setError("Please upload a PDF file."); return; }
+    setFile(f);
+    setError("");
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append("file", f);
+      const res = await fetch("/api/extract-criteria", { method:"POST", body:fd });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Extraction failed");
+      onComplete(data);
+    } catch(e) {
+      setError(e.message);
+      setFile(null);
+    } finally { setLoading(false); }
+  };
+
+  return (
+    <div className="hero-gradient" style={{minHeight:"calc(100vh - 60px)",padding:"60px 24px 0"}}>
+      <div style={{maxWidth:700,margin:"0 auto",textAlign:"center",position:"relative",zIndex:1}}>
+        <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(99,102,241,0.2)",border:"1px solid rgba(99,102,241,0.4)",borderRadius:20,padding:"5px 14px",marginBottom:24}}>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#818cf8" strokeWidth="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+          <span style={{color:"#a5b4fc",fontSize:13,fontWeight:500}}>AI-powered clinical trial screening</span>
+        </div>
+        <h1 style={{color:"white",fontSize:50,fontWeight:800,lineHeight:1.1,letterSpacing:"-2px",marginBottom:20}}>
+          Screen patients for<br/>
+          <span style={{background:"linear-gradient(135deg,#a5b4fc,#c4b5fd)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>clinical trial eligibility</span><br/>
+          in under 3 minutes
+        </h1>
+        <p style={{color:"#94a3b8",fontSize:18,marginBottom:36,lineHeight:1.6}}>Upload a trial protocol PDF. Get structured eligibility criteria. Screen any patient with transparent, auditable AI reasoning.</p>
+        <div style={{display:"flex",gap:20,justifyContent:"center",marginBottom:48}}>
+          {[["15–45 min","Manual screening","#374151"],["< 3 min","With TrialMatch AI","rgba(99,102,241,0.3)"]].map(([t,l,bg],i)=>(
+            <div key={i} style={{background:bg,border:`1px solid ${i?'rgba(99,102,241,0.5)':'rgba(255,255,255,0.1)'}`,borderRadius:12,padding:"14px 24px",textAlign:"center"}}>
+              <div style={{color:i?"#a5b4fc":"#cbd5e1",fontSize:26,fontWeight:800,letterSpacing:-1}}>{t}</div>
+              <div style={{color:"#64748b",fontSize:12,marginTop:2}}>{l}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div style={{maxWidth:640,margin:"0 auto",position:"relative",zIndex:1}}>
+        <div style={{background:"white",borderRadius:"20px 20px 0 0",padding:36,boxShadow:"0 -20px 60px rgba(0,0,0,0.4)"}}>
+          <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:24}}>
+            <div>
+              <h2 style={{color:"#1e293b",fontSize:18,fontWeight:700,margin:"0 0 3px"}}>Upload Trial Protocol</h2>
+              <p style={{color:"#64748b",fontSize:13,margin:0}}>PDF from ClinicalTrials.gov or sponsor</p>
+            </div>
+            <div style={{background:"#f1f5f9",borderRadius:8,padding:"7px 12px",fontSize:12,color:"#64748b",fontWeight:600,display:"flex",alignItems:"center",gap:5}}>
+              🔒 No PHI stored
+            </div>
+          </div>
+          <label
+            className="upload-zone"
+            style={{borderRadius:12,padding:"40px 24px",textAlign:"center",cursor:"pointer",display:"block",borderColor:dragging?"#6366f1":"#818cf8"}}
+            onDragOver={e=>{e.preventDefault();setDragging(true)}}
+            onDragLeave={()=>setDragging(false)}
+            onDrop={e=>{e.preventDefault();setDragging(false);handleFile(e.dataTransfer.files[0])}}
+          >
+            <input ref={inputRef} type="file" accept=".pdf" style={{display:"none"}} onChange={e=>handleFile(e.target.files[0])}/>
+            {loading ? (
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:12}}>
+                <SpinIcon size={32}/>
+                <div style={{color:"#6366f1",fontWeight:600}}>Extracting criteria with Claude AI…</div>
+                <div style={{color:"#94a3b8",fontSize:13}}>Analyzing protocol text, this takes 15–30 seconds</div>
+              </div>
+            ) : file ? (
+              <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:8}}>
+                <div style={{fontSize:36}}>📄</div>
+                <div style={{color:"#1e293b",fontWeight:600}}>{file.name}</div>
+                <div style={{color:"#6366f1",fontSize:13}}>{(file.size/1024/1024).toFixed(1)} MB · Ready</div>
+              </div>
+            ) : (
+              <>
+                <div style={{width:52,height:52,background:"linear-gradient(135deg,#eef2ff,#e0e7ff)",borderRadius:14,display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px"}}>
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#6366f1" strokeWidth="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                </div>
+                <div style={{color:"#1e293b",fontSize:15,fontWeight:600,marginBottom:5}}>Drop your protocol PDF here</div>
+                <div style={{color:"#94a3b8",fontSize:13,marginBottom:18}}>or click to browse · supports PDF up to 50MB</div>
+                <button onClick={e=>{e.preventDefault();inputRef.current.click()}} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"white",fontSize:13,fontWeight:600,padding:"9px 24px",borderRadius:8,border:"none",cursor:"pointer"}}>
+                  Choose PDF file
+                </button>
+              </>
+            )}
+          </label>
+          {error && <div style={{marginTop:12,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:8,padding:"10px 14px",color:"#dc2626",fontSize:13}}>⚠ {error}</div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 2: Criteria Review ─────────────────────────────────────────────────
+const CATEGORY_COLORS = {
+  demographics:"#e0e7ff", diagnosis:"#fce7f3", lab_values:"#d1fae5",
+  medications:"#fef3c7", medical_history:"#fee2e2", procedures:"#e0f2fe",
+  functional_status:"#f3e8ff", other:"#f1f5f9"
+};
+
+function CriteriaStep({ data, onComplete, onBack }) {
+  const [criteria, setCriteria] = useState(data.criteria);
+  const [editIdx, setEditIdx] = useState(null);
+  const [editVal, setEditVal] = useState("");
+
+  const inclusion = criteria.filter(c=>c.type==="inclusion");
+  const exclusion = criteria.filter(c=>c.type==="exclusion");
+
+  const saveEdit = (idx) => {
+    const updated = [...criteria];
+    updated[idx] = {...updated[idx], description: editVal};
+    setCriteria(updated);
+    setEditIdx(null);
+  };
+  const remove = (idx) => setCriteria(criteria.filter((_,i)=>i!==idx));
+
+  const CriterionCard = ({c, idx, isInclusion}) => (
+    <div className="fade-in" style={{background:"white",border:`1px solid #e2e8f0`,borderLeft:`4px solid ${isInclusion?"#22c55e":"#ef4444"}`,borderRadius:10,padding:"14px 16px",marginBottom:8}}>
+      <div style={{display:"flex",alignItems:"flex-start",gap:8}}>
+        <div style={{flex:1}}>
+          <div style={{display:"flex",alignItems:"center",gap:6,marginBottom:7,flexWrap:"wrap"}}>
+            <span style={{background:isInclusion?"#dcfce7":"#fee2e2",color:isInclusion?"#15803d":"#dc2626",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:4}}>{c.criterion_id}</span>
+            <span style={{background:CATEGORY_COLORS[c.category]||"#f1f5f9",color:"#475569",fontSize:11,fontWeight:600,padding:"2px 7px",borderRadius:4}}>{c.category}</span>
+            {c.logic && c.logic!=="simple" && <span style={{background:"#fef3c7",color:"#d97706",fontSize:11,fontWeight:600,padding:"2px 7px",borderRadius:4}}>⚠ compound</span>}
+          </div>
+          {editIdx===idx ? (
+            <div>
+              <textarea value={editVal} onChange={e=>setEditVal(e.target.value)} style={{width:"100%",padding:8,border:"1px solid #6366f1",borderRadius:6,fontSize:13,resize:"none",outline:"none"}} rows={2}/>
+              <div style={{display:"flex",gap:6,marginTop:6}}>
+                <button onClick={()=>saveEdit(idx)} style={{background:"#6366f1",color:"white",fontSize:12,padding:"5px 12px",borderRadius:6,border:"none",cursor:"pointer",fontWeight:600}}>Save</button>
+                <button onClick={()=>setEditIdx(null)} style={{background:"#f1f5f9",color:"#475569",fontSize:12,padding:"5px 12px",borderRadius:6,border:"none",cursor:"pointer"}}>Cancel</button>
+              </div>
+            </div>
+          ) : (
+            <p style={{color:"#1e293b",fontSize:13,fontWeight:500,margin:"0 0 6px",lineHeight:1.5}}>{c.description}</p>
+          )}
+          {c.data_points_needed && c.data_points_needed.length > 0 && (
+            <div style={{color:"#64748b",fontSize:12}}>
+              <span style={{fontWeight:600}}>Needs: </span>{c.data_points_needed.join(", ")}
+            </div>
+          )}
+          {c.logic && c.logic!=="simple" && (
+            <div style={{marginTop:6}}>
+              <code style={{background:"#eef2ff",color:"#4f46e5",fontSize:11,padding:"2px 8px",borderRadius:4}}>{c.logic}</code>
+            </div>
+          )}
+        </div>
+        <div style={{display:"flex",gap:5,flexShrink:0}}>
+          <button onClick={()=>{setEditIdx(idx);setEditVal(c.description)}} style={{width:28,height:28,background:"#f8fafc",border:"1px solid #e2e8f0",borderRadius:6,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#64748b",fontSize:13}}>✏</button>
+          <button onClick={()=>remove(idx)} style={{width:28,height:28,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:6,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",color:"#ef4444",fontSize:13}}>✕</button>
+        </div>
+      </div>
+    </div>
+  );
+
+  return (
+    <div style={{maxWidth:900,margin:"0 auto",padding:"28px 24px"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:20}}>
+        <div>
+          <h2 style={{color:"#1e293b",fontSize:22,fontWeight:700,margin:"0 0 4px"}}>Extracted Eligibility Criteria</h2>
+          <p style={{color:"#64748b",fontSize:14,margin:0}}>{data.trial_name} · {data.trial_id || "Protocol"} · Review and edit before screening</p>
+        </div>
+        <div style={{display:"flex",gap:20,alignItems:"center"}}>
+          <div style={{textAlign:"center"}}><div style={{color:"#22c55e",fontSize:22,fontWeight:800}}>{inclusion.length}</div><div style={{color:"#64748b",fontSize:11,fontWeight:600,textTransform:"uppercase"}}>Inclusion</div></div>
+          <div style={{width:1,height:32,background:"#e2e8f0"}}/>
+          <div style={{textAlign:"center"}}><div style={{color:"#ef4444",fontSize:22,fontWeight:800}}>{exclusion.length}</div><div style={{color:"#64748b",fontSize:11,fontWeight:600,textTransform:"uppercase"}}>Exclusion</div></div>
+        </div>
+      </div>
+      <div style={{background:"#f0fdf4",border:"1px solid #bbf7d0",borderRadius:10,padding:"11px 16px",marginBottom:20,display:"flex",alignItems:"center",gap:10}}>
+        <span style={{color:"#16a34a",fontSize:18}}>✓</span>
+        <span style={{color:"#15803d",fontSize:13}}>Review each criterion — edit or delete any that were incorrectly extracted before proceeding to patient screening.</span>
+      </div>
+
+      {inclusion.length > 0 && (
+        <div style={{marginBottom:16}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{width:10,height:10,background:"#22c55e",borderRadius:2}}/>
+            <span style={{color:"#15803d",fontSize:12,fontWeight:700,textTransform:"uppercase",letterSpacing:.5}}>Inclusion Criteria</span>
+          </div>
+          {inclusion.map((c,i) => <CriterionCard key={c.criterion_id} c={c} idx={criteria.indexOf(c)} isInclusion={true}/>)}
+        </div>
+      )}
+      {exclusion.length > 0 && (
+        <div style={{marginBottom:24}}>
+          <div style={{display:"flex",alignItems:"center",gap:8,marginBottom:10}}>
+            <div style={{width:10,height:10,background:"#ef4444",borderRadius:2}}/>
+            <span style={{color:"#dc2626",fontSize:12,fontWeight:700,textTransform:"uppercase",letterSpacing:.5}}>Exclusion Criteria</span>
+          </div>
+          {exclusion.map((c,i) => <CriterionCard key={c.criterion_id} c={c} idx={criteria.indexOf(c)} isInclusion={false}/>)}
+        </div>
+      )}
+
+      <div style={{display:"flex",justifyContent:"flex-end",gap:10}}>
+        <button onClick={onBack} style={{background:"white",border:"1px solid #e2e8f0",color:"#374151",fontSize:14,fontWeight:600,padding:"10px 20px",borderRadius:8,cursor:"pointer"}}>← Back</button>
+        <button onClick={()=>onComplete({...data, criteria})} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"white",fontSize:14,fontWeight:600,padding:"10px 24px",borderRadius:8,border:"none",cursor:"pointer"}}>
+          Screen a Patient →
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 3: Screen Patient ──────────────────────────────────────────────────
+function ScreenStep({ extractionData, onComplete, onBack }) {
+  const [patientText, setPatientText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const loadDemo = () => setPatientText(DEMO_PATIENT);
+
+  const submit = async () => {
+    if (!patientText.trim()) { setError("Please enter a patient summary."); return; }
+    setError(""); setLoading(true);
+    try {
+      const res = await fetch("/api/screen-patient", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          criteria: extractionData.criteria,
+          patient_summary: patientText,
+          trial_id: extractionData.trial_id || "",
+          trial_name: extractionData.trial_name || "Clinical Trial"
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Screening failed");
+      onComplete(data);
+    } catch(e) { setError(e.message); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div style={{maxWidth:800,margin:"0 auto",padding:"28px 24px"}}>
+      <div style={{marginBottom:20}}>
+        <h2 style={{color:"#1e293b",fontSize:22,fontWeight:700,margin:"0 0 4px"}}>Patient Summary</h2>
+        <p style={{color:"#64748b",fontSize:14,margin:0}}>Enter de-identified patient information. No data is stored — session only.</p>
+      </div>
+
+      <div style={{background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10,padding:"11px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:10}}>
+        <span style={{fontSize:16}}>⚠</span>
+        <span style={{color:"#92400e",fontSize:13}}>De-identify all patient data before entering. Remove name, DOB, MRN, address, and other direct identifiers.</span>
+      </div>
+
+      <div style={{background:"white",border:"1px solid #e2e8f0",borderRadius:12,padding:20,marginBottom:16}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+          <label style={{color:"#1e293b",fontSize:14,fontWeight:600}}>De-identified patient summary</label>
+          <button onClick={loadDemo} style={{background:"#eef2ff",color:"#6366f1",fontSize:12,fontWeight:600,padding:"5px 12px",borderRadius:6,border:"1px solid #c7d2fe",cursor:"pointer"}}>Load Demo Patient</button>
+        </div>
+        <textarea
+          value={patientText}
+          onChange={e=>setPatientText(e.target.value)}
+          placeholder={`Example:\nAge: 45, Male\nDiagnosis: Type 2 Diabetes (2018)\nHbA1c: 8.7%\nMedications: Metformin 1000mg BID\n...`}
+          style={{width:"100%",minHeight:220,padding:12,border:"1px solid #e2e8f0",borderRadius:8,fontSize:13,lineHeight:1.7,resize:"vertical",outline:"none",color:"#374151",fontFamily:"'Inter', monospace"}}
+        />
+        <div style={{color:"#94a3b8",fontSize:12,marginTop:6}}>{patientText.length} characters · Free-text clinical notes, discharge summaries, or structured data all work</div>
+      </div>
+
+      <div style={{background:"white",border:"1px solid #e2e8f0",borderRadius:10,padding:14,marginBottom:20}}>
+        <div style={{color:"#1e293b",fontSize:13,fontWeight:600,marginBottom:8}}>Screening against {extractionData.criteria.length} criteria from: {extractionData.trial_name}</div>
+        <div style={{display:"flex",gap:16}}>
+          <span style={{color:"#15803d",fontSize:12}}>✓ {extractionData.criteria.filter(c=>c.type==="inclusion").length} inclusion</span>
+          <span style={{color:"#dc2626",fontSize:12}}>✗ {extractionData.criteria.filter(c=>c.type==="exclusion").length} exclusion</span>
+        </div>
+      </div>
+
+      {error && <div style={{marginBottom:16,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:8,padding:"10px 14px",color:"#dc2626",fontSize:13}}>⚠ {error}</div>}
+
+      <div style={{display:"flex",justifyContent:"flex-end",gap:10}}>
+        <button onClick={onBack} style={{background:"white",border:"1px solid #e2e8f0",color:"#374151",fontSize:14,fontWeight:600,padding:"10px 20px",borderRadius:8,cursor:"pointer"}}>← Back</button>
+        <button onClick={submit} disabled={loading} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"white",fontSize:14,fontWeight:600,padding:"10px 24px",borderRadius:8,border:"none",cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1,display:"flex",alignItems:"center",gap:8}}>
+          {loading ? <><SpinIcon size={14}/> Screening with Claude AI…</> : "Run Screening →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+// ─── Step 4: Results + Export ────────────────────────────────────────────────
+function ResultsStep({ screeningData, extractionData, patientSummary, onReset, onBack }) {
+  const [exporting, setExporting] = useState(false);
+
+  const statusConfig = {
+    LIKELY_ELIGIBLE: { bg:"linear-gradient(135deg,#f0fdf4,#dcfce7)", border:"#86efac", icon:"✓", color:"#14532d", sub:"#16a34a" },
+    LIKELY_INELIGIBLE: { bg:"linear-gradient(135deg,#fef2f2,#fee2e2)", border:"#fca5a5", icon:"✗", color:"#7f1d1d", sub:"#dc2626" },
+    NEEDS_REVIEW: { bg:"linear-gradient(135deg,#fffbeb,#fef3c7)", border:"#fcd34d", icon:"⚠", color:"#713f12", sub:"#d97706" },
+  };
+  const sc = statusConfig[screeningData.overall_status] || statusConfig.NEEDS_REVIEW;
+
+  const exportPDF = async () => {
+    setExporting(true);
+    try {
+      const res = await fetch("/api/export-report", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          trial_id: extractionData.trial_id || "Unknown",
+          trial_name: extractionData.trial_name || "Clinical Trial",
+          patient_summary: patientSummary,
+          criteria: extractionData.criteria,
+          results: screeningData.results,
+          overall_status: screeningData.overall_status,
+          meets_count: screeningData.meets_count,
+          fails_count: screeningData.fails_count,
+          review_count: screeningData.review_count,
+        })
+      });
+      if (!res.ok) throw new Error("Export failed");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url; a.download = `TrialMatch_Report.pdf`; a.click();
+      URL.revokeObjectURL(url);
+    } catch(e) { alert("Export failed: " + e.message); }
+    finally { setExporting(false); }
+  };
+
+  const statusLabel = { MEETS:"MEETS", DOES_NOT_MEET:"DOES NOT MEET", INSUFFICIENT_DATA:"INSUFFICIENT DATA" };
+  const statusBg = { MEETS:"#dcfce7", DOES_NOT_MEET:"#fee2e2", INSUFFICIENT_DATA:"#fef3c7" };
+  const statusColor = { MEETS:"#15803d", DOES_NOT_MEET:"#dc2626", INSUFFICIENT_DATA:"#d97706" };
+  const confBg = { high:"#dcfce7", medium:"#fef3c7", low:"#fee2e2" };
+  const confColor = { high:"#15803d", medium:"#d97706", low:"#dc2626" };
+
+  const insufficientResults = screeningData.results.filter(r=>r.status==="INSUFFICIENT_DATA");
+
+  return (
+    <div style={{display:"flex",height:"calc(100vh - 60px)",overflow:"hidden"}}>
+      {/* Left: patient summary sidebar */}
+      <div style={{width:280,background:"white",borderRight:"1px solid #e2e8f0",overflow:"auto",flexShrink:0,padding:"20px 18px"}}>
+        <div style={{color:"#1e293b",fontSize:14,fontWeight:700,marginBottom:12,display:"flex",alignItems:"center",gap:6}}>
+          <span>👤</span> Patient Summary
+        </div>
+        <div style={{background:"#f8fafc",border:"1px solid #e2e8f0",borderRadius:10,padding:12,fontSize:12,lineHeight:1.8,color:"#374151",whiteSpace:"pre-wrap",fontFamily:"'Inter', monospace"}}>{patientSummary}</div>
+        <div style={{marginTop:12,background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:8,padding:10,display:"flex",alignItems:"center",gap:7}}>
+          <span style={{fontSize:16}}>⏱</span>
+          <div>
+            <div style={{color:"#0c4a6e",fontSize:12,fontWeight:700}}>AI screened in seconds</div>
+            <div style={{color:"#0369a1",fontSize:11}}>vs. 15–45 min manually</div>
+          </div>
+        </div>
+      </div>
+
+      {/* Right: results */}
+      <div style={{flex:1,overflow:"auto",padding:"24px 28px"}}>
+        {/* Overall banner */}
+        <div style={{background:sc.bg,border:`2px solid ${sc.border}`,borderRadius:14,padding:"20px 24px",marginBottom:20,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:14}}>
+            <div style={{width:52,height:52,background:sc.sub,borderRadius:13,display:"flex",alignItems:"center",justifyContent:"center",fontSize:26,color:"white",flexShrink:0}}>{sc.icon}</div>
+            <div>
+              <div style={{color:sc.color,fontSize:20,fontWeight:800}}>{screeningData.overall_status.replace(/_/g," ")}</div>
+              <div style={{color:sc.sub,fontSize:13,marginTop:2}}>{screeningData.summary}</div>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:20,textAlign:"center",flexShrink:0}}>
+            {[["#15803d",screeningData.meets_count,"Meets"],["#dc2626",screeningData.fails_count,"Fails"],["#d97706",screeningData.review_count,"Review"]].map(([color,count,label])=>(
+              <div key={label}><div style={{color,fontSize:26,fontWeight:800}}>{count}</div><div style={{color:"#64748b",fontSize:10,fontWeight:700,textTransform:"uppercase"}}>{label}</div></div>
+            ))}
+          </div>
+        </div>
+
+        {/* Missing data alert */}
+        {insufficientResults.length > 0 && (
+          <div style={{background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10,padding:"12px 16px",marginBottom:18}}>
+            <div style={{color:"#92400e",fontSize:13,fontWeight:700,marginBottom:6}}>⚠ {insufficientResults.length} item{insufficientResults.length>1?"s":""} need{insufficientResults.length===1?"s":""} coordinator verification</div>
+            {insufficientResults.map(r=>(
+              <div key={r.criterion_id} style={{fontSize:12,color:"#92400e",marginBottom:3}}>
+                <b>{r.criterion_id}:</b> {r.follow_up_question || (r.missing_data||[]).join(", ")}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Per-criterion results */}
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          {screeningData.results.map((r,i) => {
+            const crit = extractionData.criteria.find(c=>c.criterion_id===r.criterion_id)||{};
+            const isInclusion = crit.type==="inclusion";
+            const s = r.status;
+            return (
+              <div key={r.criterion_id} className="fade-in" style={{background:"white",border:"1px solid #e2e8f0",borderLeft:`4px solid ${isInclusion?"#22c55e":"#ef4444"}`,borderRadius:10,padding:"14px 16px"}}>
+                <div style={{display:"flex",alignItems:"flex-start",gap:10}}>
+                  <div style={{flex:1}}>
+                    <div style={{display:"flex",alignItems:"center",gap:7,marginBottom:6,flexWrap:"wrap"}}>
+                      <span style={{background:isInclusion?"#dcfce7":"#fee2e2",color:isInclusion?"#15803d":"#dc2626",fontSize:11,fontWeight:700,padding:"2px 7px",borderRadius:4}}>{r.criterion_id}</span>
+                      <span style={{background:statusBg[s]||"#f8fafc",color:statusColor[s]||"#374151",fontSize:12,fontWeight:700,padding:"3px 9px",borderRadius:6}}>{statusLabel[s]||s}</span>
+                      <span style={{background:confBg[r.confidence]||"#f1f5f9",color:confColor[r.confidence]||"#64748b",fontSize:11,fontWeight:600,padding:"2px 7px",borderRadius:4}}>{(r.confidence||"").charAt(0).toUpperCase()+(r.confidence||"").slice(1)} confidence</span>
+                    </div>
+                    <p style={{color:"#1e293b",fontSize:13,fontWeight:500,margin:"0 0 6px",lineHeight:1.5}}>{crit.description||r.criterion_id}</p>
+                    {r.reasoning && <p style={{color:"#475569",fontSize:13,margin:"0 0 4px",lineHeight:1.5}}>{r.reasoning}</p>}
+                    {r.missing_data && r.missing_data.length>0 && (
+                      <div style={{background:"#fffbeb",border:"1px solid #fde68a",borderRadius:7,padding:"7px 10px",marginTop:6,fontSize:12,color:"#92400e"}}>
+                        <b>Missing:</b> {r.missing_data.join(", ")}
+                      </div>
+                    )}
+                    {r.follow_up_question && (
+                      <div style={{background:"#f0f9ff",border:"1px solid #bae6fd",borderRadius:7,padding:"7px 10px",marginTop:4,fontSize:12,color:"#0c4a6e"}}>
+                        <b>Follow-up:</b> {r.follow_up_question}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Disclaimer */}
+        <div style={{marginTop:20,background:"#f8fafc",border:"1px solid #e2e8f0",borderRadius:10,padding:"12px 16px",fontSize:12,color:"#64748b",lineHeight:1.5}}>
+          <b>Not for clinical decision-making.</b> This AI screening is a first-pass efficiency tool. All assessments must be reviewed and confirmed by a qualified coordinator or investigator before any enrollment decision.
+        </div>
+
+        {/* Action buttons */}
+        <div style={{display:"flex",justifyContent:"flex-end",gap:10,marginTop:16}}>
+          <button onClick={onBack} style={{background:"white",border:"1px solid #e2e8f0",color:"#374151",fontSize:13,fontWeight:600,padding:"9px 18px",borderRadius:8,cursor:"pointer"}}>← Back</button>
+          <button onClick={onReset} style={{background:"white",border:"1px solid #e2e8f0",color:"#374151",fontSize:13,fontWeight:600,padding:"9px 18px",borderRadius:8,cursor:"pointer"}}>Screen Another Patient</button>
+          <button onClick={exportPDF} disabled={exporting} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"white",fontSize:13,fontWeight:600,padding:"9px 20px",borderRadius:8,border:"none",cursor:exporting?"not-allowed":"pointer",opacity:exporting?0.7:1,display:"flex",alignItems:"center",gap:7}}>
+            {exporting ? <><SpinIcon size={13}/> Generating PDF…</> : "⬇ Download Report PDF"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ─── App Root ────────────────────────────────────────────────────────────────
+function App() {
+  const [step, setStep] = useState(0);
+  const [extractionData, setExtractionData] = useState(null);
+  const [screeningData, setScreeningData] = useState(null);
+  const [patientSummary, setPatientSummary] = useState("");
+
+  const handleExtracted = (data) => { setExtractionData(data); setStep(1); };
+  const handleCriteriaReviewed = (data) => { setExtractionData(data); setStep(2); };
+  const handleScreened = (data, summary) => { setScreeningData(data); setPatientSummary(summary); setStep(3); };
+  const handleReset = () => { setStep(2); setScreeningData(null); };
+
+  return (
+    <div>
+      <NavBar step={step}/>
+      {step===0 && <UploadStep onComplete={handleExtracted}/>}
+      {step===1 && <CriteriaStep data={extractionData} onComplete={handleCriteriaReviewed} onBack={()=>setStep(0)}/>}
+      {step===2 && <ScreenWrapper extractionData={extractionData} onComplete={handleScreened} onBack={()=>setStep(1)}/>}
+      {step===3 && <ResultsStep screeningData={screeningData} extractionData={extractionData} patientSummary={patientSummary} onReset={handleReset} onBack={()=>setStep(2)}/>}
+    </div>
+  );
+}
+
+// Wrapper to capture patient summary before passing to results
+function ScreenWrapper({ extractionData, onComplete, onBack }) {
+  const [patientText, setPatientText] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  const loadDemo = () => setPatientText(DEMO_PATIENT);
+
+  const submit = async () => {
+    if (!patientText.trim()) { setError("Please enter a patient summary."); return; }
+    setError(""); setLoading(true);
+    try {
+      const res = await fetch("/api/screen-patient", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          criteria: extractionData.criteria,
+          patient_summary: patientText,
+          trial_id: extractionData.trial_id || "",
+          trial_name: extractionData.trial_name || "Clinical Trial"
+        })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.detail || "Screening failed");
+      onComplete(data, patientText);
+    } catch(e) { setError(e.message); }
+    finally { setLoading(false); }
+  };
+
+  return (
+    <div style={{maxWidth:800,margin:"0 auto",padding:"28px 24px"}}>
+      <div style={{marginBottom:20}}>
+        <h2 style={{color:"#1e293b",fontSize:22,fontWeight:700,margin:"0 0 4px"}}>Patient Summary</h2>
+        <p style={{color:"#64748b",fontSize:14,margin:0}}>Enter de-identified patient information. No data is stored — session only.</p>
+      </div>
+      <div style={{background:"#fffbeb",border:"1px solid #fcd34d",borderRadius:10,padding:"11px 16px",marginBottom:16,display:"flex",alignItems:"center",gap:10}}>
+        <span style={{fontSize:16}}>⚠</span>
+        <span style={{color:"#92400e",fontSize:13}}>De-identify all patient data before entering. Remove name, DOB, MRN, address, and other direct identifiers.</span>
+      </div>
+      <div style={{background:"white",border:"1px solid #e2e8f0",borderRadius:12,padding:20,marginBottom:16}}>
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",marginBottom:12}}>
+          <label style={{color:"#1e293b",fontSize:14,fontWeight:600}}>De-identified patient summary</label>
+          <button onClick={loadDemo} style={{background:"#eef2ff",color:"#6366f1",fontSize:12,fontWeight:600,padding:"5px 12px",borderRadius:6,border:"1px solid #c7d2fe",cursor:"pointer"}}>Load Demo Patient</button>
+        </div>
+        <textarea value={patientText} onChange={e=>setPatientText(e.target.value)}
+          placeholder={`Age: 45, Male\nDiagnosis: Type 2 Diabetes (2018)\nHbA1c: 8.7%\nMedications: Metformin 1000mg BID\n...`}
+          style={{width:"100%",minHeight:220,padding:12,border:"1px solid #e2e8f0",borderRadius:8,fontSize:13,lineHeight:1.7,resize:"vertical",outline:"none",color:"#374151"}}
+        />
+        <div style={{color:"#94a3b8",fontSize:12,marginTop:6}}>{patientText.length} chars</div>
+      </div>
+      <div style={{background:"white",border:"1px solid #e2e8f0",borderRadius:10,padding:14,marginBottom:20}}>
+        <div style={{color:"#1e293b",fontSize:13,fontWeight:600,marginBottom:6}}>Screening against {extractionData.criteria.length} criteria from: {extractionData.trial_name}</div>
+        <div style={{display:"flex",gap:16}}>
+          <span style={{color:"#15803d",fontSize:12}}>✓ {extractionData.criteria.filter(c=>c.type==="inclusion").length} inclusion</span>
+          <span style={{color:"#dc2626",fontSize:12}}>✗ {extractionData.criteria.filter(c=>c.type==="exclusion").length} exclusion</span>
+        </div>
+      </div>
+      {error && <div style={{marginBottom:16,background:"#fef2f2",border:"1px solid #fecaca",borderRadius:8,padding:"10px 14px",color:"#dc2626",fontSize:13}}>⚠ {error}</div>}
+      <div style={{display:"flex",justifyContent:"flex-end",gap:10}}>
+        <button onClick={onBack} style={{background:"white",border:"1px solid #e2e8f0",color:"#374151",fontSize:14,fontWeight:600,padding:"10px 20px",borderRadius:8,cursor:"pointer"}}>← Back</button>
+        <button onClick={submit} disabled={loading} style={{background:"linear-gradient(135deg,#6366f1,#8b5cf6)",color:"white",fontSize:14,fontWeight:600,padding:"10px 24px",borderRadius:8,border:"none",cursor:loading?"not-allowed":"pointer",opacity:loading?0.7:1,display:"flex",alignItems:"center",gap:8}}>
+          {loading ? <><SpinIcon size={14}/> Screening with Claude AI…</> : "Run Screening →"}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<App/>);
+</script>
+</body>
+</html>
