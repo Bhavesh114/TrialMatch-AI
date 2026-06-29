@@ -10,3 +10,4 @@ Automated, non-breaking daily entries.
 - **2026-06-27 20:34 IST** — The Great Wall of China is not visible from space with the naked eye — that's a myth. Astronaut Yang Liwei confirmed this after China's first crewed spaceflight in 2003.
 - **2026-06-28 06:35 IST** — Cleopatra lived closer in time to the Moon landing than to the construction of the Great Pyramid of Giza. The pyramids are *that* old.
 - **2026-06-28 20:34 IST** — Koala fingerprints are so similar to human ones that they've been known to confuse forensic investigators at crime scenes — the only non-primate animal to have them.
+- **2026-06-29 06:35 IST** — The Voyager 1 spacecraft, launched in 1977, takes over 22 hours to receive a signal from Earth — it's now more than 24 billion km away, the farthest human-made object ever.
