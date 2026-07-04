@@ -20,3 +20,4 @@ Automated, non-breaking daily entries.
 - **2026-07-03 06:33 IST** — Wombats are the only animals known to produce cube-shaped poop — their intestines vary in elasticity to form the corners, keeping the stacks from rolling away when used to mark territory.
 - **2026-07-03 20:31 IST** — Venus is the only planet where a day is longer than its year: one rotation takes 243 Earth days, but one orbit around the Sun takes just 225 — thank its bizarre, near-zero axial spin.
 - **2026-07-04 06:52 IST** — Sharks have existed for about 450 million years — older than trees (~350 million years), Mount Everest, and even Saturn's rings.
+- **2026-07-04 21:07 IST** — Mantis shrimp throw the fastest punch in the animal kingdom, snapping their claws so hard the water around them boils briefly, creating a flash of light in a process called sonoluminescence.
