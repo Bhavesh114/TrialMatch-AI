@@ -22,3 +22,4 @@ Automated, non-breaking daily entries.
 - **2026-07-04 06:52 IST** — Sharks have existed for about 450 million years — older than trees (~350 million years), Mount Everest, and even Saturn's rings.
 - **2026-07-04 21:07 IST** — Mantis shrimp throw the fastest punch in the animal kingdom, snapping their claws so hard the water around them boils briefly, creating a flash of light in a process called sonoluminescence.
 - **2026-07-05 06:39 IST** — Octopuses have three hearts and blue, copper-based blood — two hearts pump blood to the gills, the third to the rest of the body, and that main heart actually stops beating when they swim, which is why they prefer crawling.
+- **2026-07-05 23:23 IST** — The Anglo-Zanzibar War of 1896 is the shortest war in recorded history: it lasted just 38 minutes, ending when the Sultan's palace surrendered under British naval bombardment.
