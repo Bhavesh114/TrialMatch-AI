@@ -26,3 +26,4 @@ Automated, non-breaking daily entries.
 - **2026-07-06 06:33 IST** — The immortal jellyfish (*Turritopsis dohrnii*) can revert its adult cells back into a juvenile polyp stage when stressed or injured, essentially resetting its biological clock — the only known animal capable of true biological immortality.
 - **2026-07-06 20:34 IST** — Pluto was discovered in 1930, but it takes about 248 Earth years to orbit the Sun — meaning Pluto hasn't even completed one full lap since we first spotted it.
 - **2026-07-07 06:35 IST** — Bananas are naturally radioactive: their potassium-40 content is measurable enough that scientists coined the tongue-in-cheek "banana equivalent dose" as an informal unit for explaining radiation exposure to the public.
+- **2026-07-07 20:45 IST** — IBM's 1980 IBM 3380, the first gigabyte-capacity hard drive, weighed about 550 lbs (250 kg) and cost roughly $40,000 — today a microSD card holds far more for a few dollars and fits on a fingertip.
