@@ -28,3 +28,4 @@ Automated, non-breaking daily entries.
 - **2026-07-07 06:35 IST** — Bananas are naturally radioactive: their potassium-40 content is measurable enough that scientists coined the tongue-in-cheek "banana equivalent dose" as an informal unit for explaining radiation exposure to the public.
 - **2026-07-07 20:45 IST** — IBM's 1980 IBM 3380, the first gigabyte-capacity hard drive, weighed about 550 lbs (250 kg) and cost roughly $40,000 — today a microSD card holds far more for a few dollars and fits on a fingertip.
 - **2026-07-09 06:34 IST** — The world's ants, taken together, weigh roughly as much as all humans combined — an estimated 20 quadrillion ants forming a biomass on par with 8 billion people.
+- **2026-07-09 20:33 IST** — Antarctica is the largest desert on Earth, not the Sahara — deserts are defined by low precipitation, not sand, and Antarctica gets less than 200mm a year, making it drier than most of the Sahara.
