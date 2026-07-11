@@ -30,3 +30,4 @@ Automated, non-breaking daily entries.
 - **2026-07-09 06:34 IST** — The world's ants, taken together, weigh roughly as much as all humans combined — an estimated 20 quadrillion ants forming a biomass on par with 8 billion people.
 - **2026-07-09 20:33 IST** — Antarctica is the largest desert on Earth, not the Sahara — deserts are defined by low precipitation, not sand, and Antarctica gets less than 200mm a year, making it drier than most of the Sahara.
 - **2026-07-10 07:15 IST** — The shortest war in recorded history was the Anglo-Zanzibar War of 1896: it lasted just 38 minutes before Zanzibar surrendered, after British ships shelled the sultan's palace.
+- **2026-07-11 06:50 IST** — Honeybees can learn to recognize individual human faces and pick them out of a lineup — despite a brain the size of a grain of rice, they use the same "configural" processing trick (treating a face as one whole pattern) that humans do.
