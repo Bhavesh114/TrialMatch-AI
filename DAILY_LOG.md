@@ -35,3 +35,4 @@ Automated, non-breaking daily entries.
 - **2026-07-13 07:24 IST** — Nintendo was founded in 1889 — not as a game company, but to hand-make *hanafuda* playing cards in Kyoto. It took over 90 years, and a detour through taxis and instant rice, before Mario ever showed up.
 - **2026-07-13 20:37 IST** — Sea otters hold hands (or wrap themselves in kelp) while sleeping at the surface so ocean currents don't drift them apart from their raft-mates overnight.
 - **2026-07-14 06:34 IST** — Greenland sharks are the longest-living vertebrates on Earth, estimated to live 300–500 years — meaning some swimming today were already alive before the invention of the telegraph, let alone the telephone.
+- **2026-07-16 03:15 IST** — Bananas are mildly radioactive: they contain potassium-40, and eating one delivers about 0.1 microsieverts, a dose so small scientists use it as a joking unit of measurement — the "banana equivalent dose" — to put radiation exposure in perspective.
