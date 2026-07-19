@@ -1,0 +1,71 @@
+{
+  "patient_id": "PT-00057",
+  "age": 58,
+  "sex": "Male",
+  "diagnoses": [
+    "Type 2 Diabetes Mellitus",
+    "Hypertension",
+    "Hyperlipidemia"
+  ],
+  "medications": [
+    {
+      "name": "metformin",
+      "dose": "1000mg",
+      "frequency": "twice daily"
+    },
+    {
+      "name": "lisinopril",
+      "dose": "20mg",
+      "frequency": "once daily"
+    },
+    {
+      "name": "atorvastatin",
+      "dose": "40mg",
+      "frequency": "once daily at bedtime"
+    }
+  ],
+  "lab_values": {
+    "HbA1c": {
+      "value": 8.2,
+      "unit": "%",
+      "date": "2024-02-15"
+    },
+    "eGFR": {
+      "value": 78,
+      "unit": "mL/min/1.73m2",
+      "date": "2024-02-15"
+    },
+    "ALT": {
+      "value": 32,
+      "unit": "U/L",
+      "date": "2024-02-15"
+    },
+    "AST": {
+      "value": 28,
+      "unit": "U/L",
+      "date": "2024-02-15"
+    },
+    "TSH": {
+      "value": 2.1,
+      "unit": "mIU/L",
+      "date": "2024-02-15"
+    },
+    "Fasting_glucose": {
+      "value": 156,
+      "unit": "mg/dL",
+      "date": "2024-02-15"
+    }
+  },
+  "comorbidities": [
+    "Hypertension",
+    "Hyperlipidemia"
+  ],
+  "surgical_history": [
+    "Appendectomy (1998)",
+    "Knee arthroscopy (2015)"
+  ],
+  "allergies": [
+    "Penicillin (rash)"
+  ],
+  "free_text_notes": "Patient reports good medication adherence. Recent weight gain of 8 pounds over past year. Denies history of pancreatitis, thyroid disease, or cancer. No recent cardiovascular events. Works as office manager with sedentary lifestyle. Interested in improved diabetes management."
+}

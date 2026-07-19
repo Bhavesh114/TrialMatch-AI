@@ -1,0 +1,45 @@
+# TrialMatch AI Backend Requirements
+# Production-grade dependencies with pinned versions
+
+# Core Framework
+fastapi==0.104.1
+uvicorn[standard]==0.24.0
+python-multipart==0.0.6
+
+# Anthropic Claude API
+anthropic==0.7.1
+
+# PDF Processing
+pymupdf==1.23.8
+pytesseract==0.3.10
+pdf2image==1.16.3
+Pillow==10.1.0
+
+# Data Validation & Serialization
+pydantic==2.5.0
+pydantic-settings==2.1.0
+
+# Report Generation
+reportlab==4.0.7
+
+# AWS/Cloud
+boto3==1.29.7
+python-dotenv==1.0.0
+
+# Testing
+pytest==7.4.3
+pytest-asyncio==0.21.1
+httpx==0.25.1
+pytest-cov==4.1.0
+
+# Development & Linting (optional)
+black==23.12.0
+flake8==6.1.0
+mypy==1.7.1
+
+# Logging & Monitoring (optional)
+python-json-logger==2.0.7
+
+# Security
+python-jose==3.3.0
+passlib==1.7.4
