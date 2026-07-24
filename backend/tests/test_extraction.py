@@ -160,13 +160,13 @@ class TestCriteriaExtraction:
     def test_call_claude_extraction_falls_back_for_legacy_sdk(self, monkeypatch):
         """Test: legacy Anthropic SDK clients should still work via completion fallback."""
 
-        class FakeCompletions:
+        class FakeMessages:
             def create(self, **kwargs):
-                return Mock(completion="legacy response")
+                return Mock(content=[Mock(text="legacy response")])
 
         class LegacyAnthropicClient:
             def __init__(self):
-                self.completions = FakeCompletions()
+                self.messages = FakeMessages()
 
         fake_anthropic_module = Mock()
         fake_anthropic_module.Anthropic = lambda **kwargs: LegacyAnthropicClient()
