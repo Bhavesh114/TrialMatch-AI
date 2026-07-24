@@ -14,10 +14,13 @@ Tests cover:
 - Caching behavior
 """
 
+import sys
 import pytest
 import json
 from unittest.mock import patch, Mock, MagicMock
 from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 # [IMPLEMENTATION]: Import services to test
 # from backend.app.services.criteria_extractor import CriteriaExtractor
@@ -117,6 +120,42 @@ class TestCriteriaExtraction:
             # assert len(result.criteria) == 2
             # assert result.criteria[0].type == "inclusion"
             # assert result.extraction_confidence >= 0.5
+
+    def test_extract_with_pymupdf_handles_legacy_page_api(self, monkeypatch):
+        """
+        Test: PyMuPDF extraction should work when page.get_text() does not
+        support the preserve_images keyword argument.
+        """
+
+        class FakePage:
+            def get_text(self, *args, **kwargs):
+                if "preserve_images" in kwargs:
+                    raise TypeError("get_text() got an unexpected keyword argument 'preserve_images'")
+                return "sample text"
+
+        class FakeDoc:
+            page_count = 1
+
+            def __getitem__(self, index):
+                return FakePage()
+
+            def close(self):
+                return None
+
+        class FakeFitzModule:
+            @staticmethod
+            def open(stream, filetype):
+                return FakeDoc()
+
+        monkeypatch.setitem(sys.modules, "fitz", FakeFitzModule)
+
+        from backend.app.services.pdf_parser import PDFParser
+
+        parser = PDFParser()
+        text, page_count = parser._extract_with_pymupdf(b"%PDF-1.4")
+
+        assert page_count == 1
+        assert text == "sample text\n"
 
     def test_handle_scanned_pdf_with_ocr_fallback(self):
         """

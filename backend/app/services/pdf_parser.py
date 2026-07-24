@@ -288,10 +288,18 @@ class PDFParser:
             try:
                 page = doc[page_num]
                 # [IMPLEMENTATION]: Extract text with layout preservation
-                page_text = page.get_text(
-                    preserve_images=False,  # Skip images
-                    sort=True  # Sort text blocks top-to-bottom
-                )
+                # Newer PyMuPDF versions support preserve_images/sort, while older
+                # versions reject preserve_images. Call with a compatibility-safe
+                # fallback when needed.
+                try:
+                    page_text = page.get_text(
+                        preserve_images=False,  # Skip images
+                        sort=True  # Sort text blocks top-to-bottom
+                    )
+                except TypeError as exc:
+                    if "preserve_images" not in str(exc):
+                        raise
+                    page_text = page.get_text()
                 text += page_text + "\n"
             except Exception as e:
                 logger.warning(f"Failed to extract page {page_num}: {e}")
