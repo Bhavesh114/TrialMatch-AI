@@ -157,6 +157,49 @@ class TestCriteriaExtraction:
         assert page_count == 1
         assert text == "sample text\n"
 
+    def test_call_claude_extraction_falls_back_for_legacy_sdk(self, monkeypatch):
+        """Test: legacy Anthropic SDK clients should still work via completion fallback."""
+
+        class FakeCompletions:
+            def create(self, **kwargs):
+                return Mock(completion="legacy response")
+
+        class LegacyAnthropicClient:
+            def __init__(self):
+                self.completions = FakeCompletions()
+
+        fake_anthropic_module = Mock()
+        fake_anthropic_module.Anthropic = lambda **kwargs: LegacyAnthropicClient()
+        fake_anthropic_module.APIError = Exception
+        fake_anthropic_module.RateLimitError = Exception
+        monkeypatch.setitem(sys.modules, "anthropic", fake_anthropic_module)
+
+        monkeypatch.setenv("ANTHROPIC_API_KEY", "test-key")
+
+        import importlib
+        import types
+
+        fake_models_module = types.ModuleType("backend.app.models.criteria")
+        fake_models_module.CriterionModel = type("CriterionModel", (), {})
+        fake_models_module.CriteriaExtractionResult = type("CriteriaExtractionResult", (), {})
+        fake_models_module.CriterionType = type("CriterionType", (), {"INCLUSION": "inclusion", "EXCLUSION": "exclusion"})
+        fake_models_module.ExtractionWarning = type("ExtractionWarning", (), {})
+        monkeypatch.setitem(sys.modules, "backend.app.models.criteria", fake_models_module)
+
+        fake_prompts_module = types.ModuleType("backend.app.prompts.extraction")
+        fake_prompts_module.EXTRACTION_SYSTEM_PROMPT = "system"
+        fake_prompts_module.build_extraction_user_prompt = lambda text: text
+        fake_prompts_module.parse_extraction_response = lambda text: []
+        monkeypatch.setitem(sys.modules, "backend.app.prompts.extraction", fake_prompts_module)
+
+        import backend.app.services.criteria_extractor as criteria_extractor_module
+        importlib.reload(criteria_extractor_module)
+
+        extractor = criteria_extractor_module.CriteriaExtractor()
+        response = extractor._call_claude_extraction("prompt")
+
+        assert response == "legacy response"
+
     def test_handle_scanned_pdf_with_ocr_fallback(self):
         """
         Test: Handle scanned PDF with OCR fallback

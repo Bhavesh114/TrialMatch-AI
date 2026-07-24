@@ -187,20 +187,30 @@ class PatientScreener:
                 logger.debug(f"Screening API call (attempt {attempt + 1}/{self.max_retries})")
 
                 # [IMPLEMENTATION]: Call Claude with structured response
-                message = self.client.messages.create(
-                    model=config.CLAUDE_MODEL,
-                    max_tokens=config.MAX_TOKENS_SCREENING,
-                    system=SCREENING_SYSTEM_PROMPT,
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": user_prompt
-                        }
-                    ],
-                    timeout=45  # 45 second timeout for screening
-                )
+                # Support both modern Anthropic SDKs and older versions.
+                if hasattr(self.client, "messages") and hasattr(self.client.messages, "create"):
+                    message = self.client.messages.create(
+                        model=config.CLAUDE_MODEL,
+                        max_tokens=config.MAX_TOKENS_SCREENING,
+                        system=SCREENING_SYSTEM_PROMPT,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": user_prompt
+                            }
+                        ],
+                        timeout=45  # 45 second timeout for screening
+                    )
+                    response_text = message.content[0].text
+                else:
+                    completion = self.client.completions.create(
+                        model=config.CLAUDE_MODEL,
+                        max_tokens_to_sample=config.MAX_TOKENS_SCREENING,
+                        prompt=f"{SCREENING_SYSTEM_PROMPT}\n\n{user_prompt}",
+                        timeout=45
+                    )
+                    response_text = getattr(completion, "completion", "")
 
-                response_text = message.content[0].text
                 logger.debug(f"Received screening response: {len(response_text)} chars")
 
                 return response_text

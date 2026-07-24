@@ -245,21 +245,31 @@ class CriteriaExtractor:
                 logger.debug(f"Extraction API call (attempt {attempt + 1}/{self.max_retries})")
 
                 # [IMPLEMENTATION]: Call Claude Sonnet with structured response
-                message = self.client.messages.create(
-                    model=config.CLAUDE_MODEL,
-                    max_tokens=config.MAX_TOKENS_EXTRACTION,
-                    system=EXTRACTION_SYSTEM_PROMPT,
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": user_prompt
-                        }
-                    ],
-                    timeout=30  # 30 second timeout per request
-                )
+                # Support both modern Anthropic SDKs (client.messages.create) and
+                # older versions that expose client.completions.create.
+                if hasattr(self.client, "messages") and hasattr(self.client.messages, "create"):
+                    message = self.client.messages.create(
+                        model=config.CLAUDE_MODEL,
+                        max_tokens=config.MAX_TOKENS_EXTRACTION,
+                        system=EXTRACTION_SYSTEM_PROMPT,
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": user_prompt
+                            }
+                        ],
+                        timeout=30  # 30 second timeout per request
+                    )
+                    response_text = message.content[0].text
+                else:
+                    completion = self.client.completions.create(
+                        model=config.CLAUDE_MODEL,
+                        max_tokens_to_sample=config.MAX_TOKENS_EXTRACTION,
+                        prompt=f"{EXTRACTION_SYSTEM_PROMPT}\n\n{user_prompt}",
+                        timeout=30
+                    )
+                    response_text = getattr(completion, "completion", "")
 
-                # [IMPLEMENTATION]: Extract response content
-                response_text = message.content[0].text
                 logger.debug(f"Received response: {len(response_text)} chars")
 
                 return response_text
