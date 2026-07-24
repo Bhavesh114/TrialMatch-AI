@@ -6,22 +6,19 @@
     },
     "backend": {
       "root": "backend",
-      "runtime": "python@3.11",
-      "entrypoint": "app/main.py"
+      "entrypoint": "app.main:app"
     }
   },
   "rewrites": [
     {
       "source": "/api(/.*)?",
       "destination": {
-        "type": "service",
         "service": "backend"
       }
     },
     {
       "source": "/(.*)",
       "destination": {
-        "type": "service",
         "service": "frontend"
       }
     }
