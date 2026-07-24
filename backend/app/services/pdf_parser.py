@@ -289,6 +289,7 @@ class PDFParser:
                 page = doc[page_num]
                 # [IMPLEMENTATION]: Extract text with layout preservation
                 page_text = page.get_text(
+                    preserve_images=False,  # Skip images
                     sort=True  # Sort text blocks top-to-bottom
                 )
                 text += page_text + "\n"
@@ -482,7 +483,7 @@ class PDFParser:
         """
 
         # [IMPLEMENTATION]: Base score on text-to-page ratio
-        if page_count == 0 or len(text) == 0:
+        if page_count == 0:
             return 0.0
 
         chars_per_page = len(text) / page_count
